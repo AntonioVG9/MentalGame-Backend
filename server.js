@@ -22,12 +22,10 @@ const transporter = nodemailer.createTransport({
 
 // Endpoint de contacto
 app.post("/contact", async (req, res) => {
-   console.log("BODY RECIBIDO:", req.body);
-    res.status(200).json({ ok: true });
   const { name, email, message } = req.body;
 
   try {
-    // Correo para TI
+    // 1️⃣ Correo para ti
     await transporter.sendMail({
       from: `"Mental Game" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_RECEIVER,
@@ -40,24 +38,30 @@ app.post("/contact", async (req, res) => {
       `,
     });
 
-    // Correo automático al cliente
+    // 2️⃣ Correo automático al cliente
     await transporter.sendMail({
-      from: `"Mental Game" <no-reply@mentalgame.es>`,
+      from: `"Mental Game" <no-reply@mental-game.com>`,
       to: email,
       subject: "Hemos recibido tu mensaje",
       html: `
         <p>Hola ${name},</p>
         <p>Gracias por contactar con <strong>Mental Game</strong>.</p>
         <p>Hemos recibido tu mensaje y te responderemos lo antes posible.</p>
-        <br>
-        <p>Este correo es automático. No respondas a este mensaje.</p>
+        <br />
+        <p><em>Este correo es automático. No respondas a este mensaje.</em></p>
       `,
     });
 
-    res.status(200).json({ ok: true });
+    // ✅ UNA SOLA RESPUESTA
+    return res.status(200).json({ ok: true });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ ok: false });
+    console.error("ERROR AL ENVIAR EMAIL:", error);
+
+    // ❗ Solo responde si aún no se ha respondido
+    if (!res.headersSent) {
+      return res.status(500).json({ ok: false });
+    }
   }
 });
 
