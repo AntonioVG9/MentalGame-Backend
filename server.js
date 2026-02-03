@@ -23,6 +23,7 @@ const transporter = nodemailer.createTransport({
 // Endpoint de contacto
 app.post("/contact", async (req, res) => {
    console.log("BODY RECIBIDO:", req.body);
+    res.status(200).json({ ok: true });
   const { name, email, message } = req.body;
 
   try {
