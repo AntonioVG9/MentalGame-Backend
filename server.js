@@ -1,19 +1,15 @@
 require("dotenv").config();
 const express = require("express");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
 
-// Permite recibir JSON
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
-// Permite llamadas desde Netlify
-app.use(cors());
-
-// Configurar transporte de correo
-const axios = require("axios");
-
+// Endpoint de contacto
 app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -77,8 +73,9 @@ app.post("/contact", async (req, res) => {
   }
 });
 
-
-// Arrancar servidor
-app.listen(3000, () => {
-  console.log("Servidor escuchando en http://localhost:3000");
+// Arrancar servidor (compatible con Render)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto ${PORT}`);
 });
+
