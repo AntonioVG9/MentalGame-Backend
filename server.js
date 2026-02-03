@@ -13,12 +13,15 @@ app.use(cors());
 
 // Configurar transporte de correo
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // true solo si usas 465
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
+
 
 // Endpoint de contacto
 app.post("/contact", async (req, res) => {
@@ -27,7 +30,7 @@ app.post("/contact", async (req, res) => {
   try {
     // 1️⃣ Correo para ti
     await transporter.sendMail({
-      from: `"Mental Game" <${process.env.EMAIL_USER}>`,
+      from: `"Mental Game" <${process.env.EMAIL_FROM}>`,
       to: process.env.EMAIL_RECEIVER,
       subject: "Nuevo mensaje desde la web",
       html: `
@@ -40,7 +43,7 @@ app.post("/contact", async (req, res) => {
 
     // 2️⃣ Correo automático al cliente
     await transporter.sendMail({
-      from: `"Mental Game" <no-reply@mental-game.com>`,
+       from: `"Mental Game" <${process.env.EMAIL_FROM}>`,
       to: email,
       subject: "Hemos recibido tu mensaje",
       html: `
