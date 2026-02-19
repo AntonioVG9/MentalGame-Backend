@@ -6,7 +6,12 @@ const axios = require("axios");
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://mentalgame.es",
+    "https://www.mental-game.es"
+  ]
+}));
 app.use(express.json());
 
 // Endpoint de contacto
