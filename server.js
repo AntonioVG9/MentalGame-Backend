@@ -25,54 +25,51 @@ app.post("/contact", async (req, res) => {
 
   try {
     // 📩 EMAIL INTERNO (PARA TI)
-    await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: {
-          name: "Mental Game",
-          email: process.env.EMAIL_FROM,
-        },
-        to: [{ email: process.env.EMAIL_RECEIVER }],
-        replyTo: {
-          email: email,
-          name: name
-        },
-        subject: "Nuevo mensaje desde la web | Mental Game",
-        htmlContent: `
-        <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:10px;">
-          <h2 style="color:#1d428a;">Nuevo mensaje desde Mental Game</h2>
-          <p style="color:#555;">Has recibido un nuevo contacto desde la web.</p>
+   await axios.post(
+  "https://api.brevo.com/v3/smtp/email",
+  {
+    sender: {
+      name: "Mental Game",
+      email: process.env.EMAIL_FROM,
+    },
+    to: [{ email: process.env.EMAIL_RECEIVER }],
+    subject: `Nuevo mensaje de ${name} (${email}) | Mental Game`,
+    htmlContent: `
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:10px;">
+      <h2 style="color:#1d428a;">Nuevo mensaje desde Mental Game</h2>
+      <p style="color:#555;">Has recibido un nuevo contacto desde la web.</p>
 
-          <hr style="margin:20px 0;">
+      <hr style="margin:20px 0;">
 
-          <p><strong>Nombre:</strong><br>${name}</p>
-          <p><strong>Email:</strong><br>${email}</p>
+      <p><strong>Nombre:</strong><br>${name}</p>
+      <p><strong>Email:</strong><br>${email}</p>
 
-          <p><strong>Mensaje:</strong></p>
-          <div style="background:#f6f8fb; padding:15px; border-radius:8px;">
-            ${message}
-          </div>
+      <p><strong>Mensaje:</strong></p>
+      <div style="background:#f6f8fb; padding:15px; border-radius:8px;">
+        ${message}
+      </div>
 
-          <hr style="margin:20px 0;">
+      <hr style="margin:20px 0;">
 
-          <a href="mailto:${email}" 
-             style="display:inline-block; padding:10px 20px; background:#1d428a; color:#fff; text-decoration:none; border-radius:5px;">
-             Responder al cliente
-          </a>
+      <a href="mailto:${email}" 
+         style="display:inline-block; padding:10px 20px; background:#1d428a; color:#fff; text-decoration:none; border-radius:5px;">
+         Responder al cliente
+      </a>
 
-          <p style="font-size:12px; color:#888; margin-top:20px;">
-            Enviado desde https://mental-game.es
-          </p>
-        </div>
-        `,
-      },
-      {
-        headers: {
-          "api-key": process.env.BREVO_API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      <p style="font-size:12px; color:#888; margin-top:20px;">
+        Enviado desde https://mental-game.es
+      </p>
+    </div>
+    `,
+  },
+  {
+    headers: {
+      "api-key": process.env.BREVO_API_KEY,
+      "Content-Type": "application/json",
+    },
+  }
+);
+
 
     // 📤 EMAIL PROFESIONAL AL CLIENTE
     await axios.post(
