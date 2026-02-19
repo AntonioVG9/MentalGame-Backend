@@ -33,7 +33,10 @@ app.post("/contact", async (req, res) => {
           email: process.env.EMAIL_FROM,
         },
         to: [{ email: process.env.EMAIL_RECEIVER }],
-        replyTo: email,
+        replyTo: {
+          email: email,
+          name: name
+        },
         subject: "Nuevo mensaje desde la web | Mental Game",
         htmlContent: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:10px;">
@@ -80,7 +83,10 @@ app.post("/contact", async (req, res) => {
           email: process.env.EMAIL_FROM,
         },
         to: [{ email }],
-        replyTo: process.env.EMAIL_RECEIVER,
+        replyTo: {
+          email: process.env.EMAIL_RECEIVER,
+          name: "Mental Game"
+        },
         subject: "Hemos recibido tu mensaje | Mental Game",
         htmlContent: `
         <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:30px; background:#ffffff; border-radius:10px; border:1px solid #eee;">
