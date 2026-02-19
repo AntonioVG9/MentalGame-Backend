@@ -18,8 +18,13 @@ app.use(express.json());
 app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
 
+  // Validación básica
+  if (!name || !email || !message) {
+    return res.status(400).json({ ok: false, error: "Faltan campos obligatorios" });
+  }
+
   try {
-    // 📩 Correo para TI
+    // 📩 EMAIL INTERNO (PARA TI)
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
@@ -28,12 +33,34 @@ app.post("/contact", async (req, res) => {
           email: process.env.EMAIL_FROM,
         },
         to: [{ email: process.env.EMAIL_RECEIVER }],
-        subject: "Nuevo mensaje desde la web",
+        replyTo: email,
+        subject: "Nuevo mensaje desde la web | Mental Game",
         htmlContent: `
-          <h3>Nuevo contacto</h3>
-          <p><strong>Nombre:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Mensaje:</strong><br>${message}</p>
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px; border:1px solid #eee; border-radius:10px;">
+          <h2 style="color:#1d428a;">Nuevo mensaje desde Mental Game</h2>
+          <p style="color:#555;">Has recibido un nuevo contacto desde la web.</p>
+
+          <hr style="margin:20px 0;">
+
+          <p><strong>Nombre:</strong><br>${name}</p>
+          <p><strong>Email:</strong><br>${email}</p>
+
+          <p><strong>Mensaje:</strong></p>
+          <div style="background:#f6f8fb; padding:15px; border-radius:8px;">
+            ${message}
+          </div>
+
+          <hr style="margin:20px 0;">
+
+          <a href="mailto:${email}" 
+             style="display:inline-block; padding:10px 20px; background:#1d428a; color:#fff; text-decoration:none; border-radius:5px;">
+             Responder al cliente
+          </a>
+
+          <p style="font-size:12px; color:#888; margin-top:20px;">
+            Enviado desde https://mental-game.es
+          </p>
+        </div>
         `,
       },
       {
@@ -44,7 +71,7 @@ app.post("/contact", async (req, res) => {
       }
     );
 
-    // 📤 No-reply al usuario
+    // 📤 EMAIL PROFESIONAL AL CLIENTE
     await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
@@ -53,13 +80,45 @@ app.post("/contact", async (req, res) => {
           email: process.env.EMAIL_FROM,
         },
         to: [{ email }],
-        subject: "Hemos recibido tu mensaje",
+        replyTo: process.env.EMAIL_RECEIVER,
+        subject: "Hemos recibido tu mensaje | Mental Game",
         htmlContent: `
-          <p>Hola ${name},</p>
-          <p>Gracias por contactar con <strong>Mental Game</strong>.</p>
-          <p>Hemos recibido tu mensaje y te responderemos lo antes posible.</p>
-          <br />
-          <p><em>Este correo es automático. No respondas a este mensaje.</em></p>
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:30px; background:#ffffff; border-radius:10px; border:1px solid #eee;">
+          
+          <h2 style="color:#1d428a; text-align:center;">
+            Mental Game
+          </h2>
+
+          <p>Hola <strong>${name}</strong>,</p>
+
+          <p>
+            Gracias por contactar con <strong>Mental Game</strong>.
+            Hemos recibido correctamente tu mensaje y lo revisaremos lo antes posible.
+          </p>
+
+          <div style="background:#f6f8fb; padding:15px; border-radius:8px; margin:20px 0;">
+            <p style="margin:0;"><strong>Tu mensaje:</strong></p>
+            <p style="margin-top:8px;">"${message}"</p>
+          </div>
+
+          <p>
+            Te responderemos en un plazo máximo de 24-48 horas.
+          </p>
+
+          <hr style="margin:25px 0;">
+
+          <p style="text-align:center;">
+            <a href="https://mental-game.es" 
+               style="display:inline-block; padding:12px 25px; background:#1d428a; color:white; text-decoration:none; border-radius:6px;">
+               Visitar la web
+            </a>
+          </p>
+
+          <p style="font-size:12px; color:#888; margin-top:30px; text-align:center;">
+            Este es un correo automático. Si deseas responder, simplemente contesta a este email.
+          </p>
+
+        </div>
         `,
       },
       {
@@ -77,6 +136,7 @@ app.post("/contact", async (req, res) => {
     return res.status(500).json({ ok: false });
   }
 });
+
 
 // Arrancar servidor (compatible con Render)
 const PORT = process.env.PORT || 3000;
